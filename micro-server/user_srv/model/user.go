@@ -11,7 +11,7 @@ type BaseModel struct {
 	CreateAt time.Time `gorm:"column:add_time"`
 	UpdateAt time.Time `gorm:"column:update_time"`
 	DeleteAt gorm.DeletedAt
-	isDelete bool
+	IsDelete bool
 }
 
 type User struct {
