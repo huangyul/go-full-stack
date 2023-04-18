@@ -2,6 +2,9 @@ package handler
 
 import (
 	"context"
+	"crypto/sha512"
+	"fmt"
+	"github.com/anaskhan96/go-password-encoder"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
@@ -91,4 +94,31 @@ func (s *UserServer) GetUserById(ctx context.Context, req *proto.IdInfo) (*proto
 	userInfoRsp := Model2Response(user)
 
 	return &userInfoRsp, nil
+}
+
+// CreateUser 创建用户
+func (s *UserServer) CreateUser(ctx context.Context, req *proto.CreateUserInfo) (*proto.UserInfoResponse, error) {
+	// 先看看数据库是否存在
+	var user model.User
+	result := global.DB.Where("mobile = ?", req.Mobile).First(&user)
+	if result.RowsAffected == 1 {
+		return nil, status.Errorf(codes.AlreadyExists, "该手机用户已经存在")
+	}
+
+	user.Mobile = req.Mobile
+	user.NickName = req.NickName
+
+	// 密码加密
+	options := &password.Options{SaltLen: 16, Iterations: 100, KeyLen: 32, HashFunction: sha512.New}
+	salt, encodedPwd := password.Encode(req.Password, options)
+	user.Password = fmt.Sprintf("$pbkdf2-sha512$%s$%s", salt, encodedPwd)
+
+	result = global.DB.Create(&user)
+
+	if result.Error != nil {
+		return nil, status.Errorf(codes.Internal, result.Error.Error())
+	}
+
+	userInfoRes := Model2Response(user)
+	return &userInfoRes, nil
 }
