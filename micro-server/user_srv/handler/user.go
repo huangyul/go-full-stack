@@ -2,6 +2,8 @@ package handler
 
 import (
 	"context"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 	"micro-server/user_srv/global"
 	"micro-server/user_srv/model"
@@ -45,7 +47,7 @@ func Model2Response(user model.User) proto.UserInfoResponse {
 type UserServer struct{}
 
 // GetUserList 获取用户列表
-func (s *UserServer) GetUserList(ctx context.Context, req proto.PageInfo) (*proto.UserListResponse, error) {
+func (s *UserServer) GetUserList(ctx context.Context, req *proto.PageInfo) (*proto.UserListResponse, error) {
 	var users []model.User
 	result := global.DB.Find(&users)
 	if result.Error != nil {
@@ -63,4 +65,30 @@ func (s *UserServer) GetUserList(ctx context.Context, req proto.PageInfo) (*prot
 	}
 
 	return rsp, nil
+}
+
+// GetUserByMobile 通过手机号码查询用户
+func (s *UserServer) GetUserByMobile(ctx context.Context, req *proto.MobileInfo) (*proto.UserInfoResponse, error) {
+	var user model.User
+	//global.DB.Where("mobile = ?", req.Mobile).First(&user)
+	result := global.DB.Where(&model.User{Mobile: req.Mobile}).First(&user)
+	if result.RowsAffected == 0 {
+		return nil, status.Errorf(codes.NotFound, "用户不存在")
+	}
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	userInfoRsp := Model2Response(user)
+	return &userInfoRsp, nil
+}
+
+// GetUserById 通过id获取用户信息
+func (s *UserServer) GetUserById(ctx context.Context, req *proto.IdInfo) (*proto.UserInfoResponse, error) {
+	var user model.User
+	global.DB.First(&user, req.Id)
+
+	userInfoRsp := Model2Response(user)
+
+	return &userInfoRsp, nil
 }
