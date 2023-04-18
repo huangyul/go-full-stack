@@ -1,6 +1,6 @@
 syntax = "proto3";
-import "google/protobuf/empty.proto"
-option go_package = ".;proto";
+import "google/protobuf/empty.proto";
+option go_package = "./;proto";
 
 service User {
   rpc GetUserList(PageInfo) returns (UserListResponse); // 用户列表
