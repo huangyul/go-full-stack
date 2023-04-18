@@ -8,6 +8,7 @@ import (
 	"micro-server/user_srv/proto"
 )
 
+// Paginate 通用分页方法
 func Paginate(page, pageSize int) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		if page == 0 {
@@ -24,6 +25,7 @@ func Paginate(page, pageSize int) func(db *gorm.DB) *gorm.DB {
 	}
 }
 
+// Model2Response 将model转为response
 func Model2Response(user model.User) proto.UserInfoResponse {
 	// 在grpc的message中，字段有默认值，不能随意赋值nil
 	//
@@ -35,7 +37,7 @@ func Model2Response(user model.User) proto.UserInfoResponse {
 		Role:     int32(user.Role),
 	}
 	if user.Birthday != nil {
-		userInfoRes.BirthDay = unit64(user.Birthday.Unix())
+		userInfoRes.BirthDay = uint64(user.Birthday.Unix())
 	}
 	return userInfoRes
 }
@@ -61,5 +63,4 @@ func (s *UserServer) GetUserList(ctx context.Context, req proto.PageInfo) (*prot
 	}
 
 	return rsp, nil
-
 }
