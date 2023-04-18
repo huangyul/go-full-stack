@@ -5,12 +5,14 @@ import (
 	"crypto/sha512"
 	"fmt"
 	"github.com/anaskhan96/go-password-encoder"
+	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 	"micro-server/user_srv/global"
 	"micro-server/user_srv/model"
 	"micro-server/user_srv/proto"
+	"time"
 )
 
 // Paginate 通用分页方法
@@ -121,4 +123,25 @@ func (s *UserServer) CreateUser(ctx context.Context, req *proto.CreateUserInfo) 
 
 	userInfoRes := Model2Response(user)
 	return &userInfoRes, nil
+}
+
+// UpdateUser 更新用户
+func (s *UserServer) UpdateUser(ctx context.Context, req *proto.UpdateUserInfo) (*empty.Empty, error) {
+	// 先找出
+	var user model.User
+	result := global.DB.First(&user, req.Id)
+	if result.RowsAffected == 0 {
+		return nil, status.Errorf(codes.NotFound, "用户不存在")
+	}
+	birthDay := time.Unix(int64(req.BirthDay), 0)
+	user.NickName = req.NickName
+	user.Birthday = &birthDay
+	user.Gender = req.Gender
+
+	result = global.DB.Save(&user)
+	if result.Error != nil {
+		return nil, status.Errorf(codes.Internal, result.Error.Error())
+	}
+
+	return &empty.Empty{}, nil
 }
