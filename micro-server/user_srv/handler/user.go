@@ -12,6 +12,7 @@ import (
 	"micro-server/user_srv/global"
 	"micro-server/user_srv/model"
 	"micro-server/user_srv/proto"
+	"strings"
 	"time"
 )
 
@@ -144,4 +145,12 @@ func (s *UserServer) UpdateUser(ctx context.Context, req *proto.UpdateUserInfo) 
 	}
 
 	return &empty.Empty{}, nil
+}
+
+// CheckPassWord(PasswordCheckInfo) returns (CheckResponse)
+func (s UserServer) CheckPassWord(ctx context.Context, req *proto.PasswordCheckInfo) (*proto.CheckResponse, error) {
+	options := &password.Options{SaltLen: 16, Iterations: 100, KeyLen: 32, HashFunction: sha512.New}
+	passwordInfo := strings.Split(req.EncryptedPassword, "$")
+	check := password.Verify(req.Password, passwordInfo[2], passwordInfo[3], options)
+	return &proto.CheckResponse{Success: check}, nil
 }
