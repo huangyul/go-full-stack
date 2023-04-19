@@ -7,9 +7,9 @@ import (
 
 // BaseModel 基础model类，定义了所有表基本的字段
 type BaseModel struct {
-	ID       int32     `gorm:"primaryKey"`
-	CreateAt time.Time `gorm:"column:add_time"`
-	UpdateAt time.Time `gorm:"column:update_time"`
+	ID       int32      `gorm:"primaryKey"`
+	CreateAt *time.Time `gorm:"column:add_time"`
+	UpdateAt *time.Time `gorm:"column:update_time"`
 	DeleteAt gorm.DeletedAt
 	IsDelete bool
 }
