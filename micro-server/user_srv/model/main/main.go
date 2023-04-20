@@ -67,10 +67,10 @@ func main() {
 	check := password.Verify("generic password", passwordInfo[2], passwordInfo[3], options)
 	fmt.Println(check) // true
 	// 创建10个用户
-	for i := 0; i < 10; i++ {
+	for i := 10; i < 20; i++ {
 		var user = model.User{
 			NickName: fmt.Sprintf("huang%d", i),
-			Mobile:   fmt.Sprintf("1111111111%d", i),
+			Mobile:   fmt.Sprintf("111111111%d", i),
 			Password: newPassword,
 		}
 		DB.Create(&user)
