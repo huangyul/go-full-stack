@@ -1,11 +1,22 @@
 package main
 
-import "mxshop-api/user-web/initialize"
+import (
+	"fmt"
+	"go.uber.org/zap"
+	"mxshop-api/user-web/initialize"
+)
 
 func main() {
+	// 初始化日志
+	initialize.InitLogger()
 
-	// 1. 初始化路由
+	// 2. 初始化路由
 	router := initialize.Routers()
+	port := 8021
 
-	router.Run(":5555")
+	zap.S().Infof("启动服务器，端口：%d", port)
+
+	if err := router.Run(fmt.Sprintf(":%d", port)); err != nil {
+		zap.S().Panic("启动失败", err.Error())
+	}
 }
