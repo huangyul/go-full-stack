@@ -10,6 +10,7 @@ import (
 	"google.golang.org/grpc/status"
 	"mxshop-api/user-web/global"
 	"net/http"
+	"strconv"
 	"time"
 
 	"mxshop-api/user-web/global/reponse"
@@ -48,9 +49,15 @@ func GetUserList(ctx *gin.Context) {
 	// 生成client并调用接口
 	userSrvClient := proto.NewUserClient(userConn)
 
+	// 获取用户传过来的参数
+	pn := ctx.DefaultQuery("pn", "0")
+	pnInt, _ := strconv.Atoi(pn)
+	psize := ctx.DefaultQuery("psize", "0")
+	psizeInt, _ := strconv.Atoi(psize)
+
 	rsp, err := userSrvClient.GetUserList(context.Background(), &proto.PageInfo{
-		Pn:    0,
-		PSize: 0,
+		Pn:    uint32(pnInt),
+		PSize: uint32(psizeInt),
 	})
 	if err != nil {
 		zap.S().Errorw("[GetUserList]查询用户列表失败")
@@ -83,4 +90,8 @@ func GetUserList(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, result)
+}
+
+func PasswordLogin(c *gin.Context) {
+	// 表单验证
 }
