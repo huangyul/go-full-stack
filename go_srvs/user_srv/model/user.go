@@ -13,6 +13,7 @@ type BaseModel struct {
 	IsDeleted bool `gorm:"column:is_deleted"`
 }
 
+// User /*
 type User struct {
 	BaseModel
 	Mobile   string     `gorm:"index:idx_mobile;unique;type:varchar(11);not null comment '手机号唯一'"` // 加索引
