@@ -12,6 +12,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
+	"strings"
 	"time"
 )
 
@@ -133,4 +134,11 @@ func (s UserServer) UpdateUser(ctx context.Context, request *proto.UpdateUserInf
 		return nil, status.Errorf(codes.Internal, result.Error.Error())
 	}
 	return &empty.Empty{}, nil
+}
+
+func (s *UserServer) CheckPassword(ctx context.Context, request *proto.CheckPasswordInfo) (*proto.CheckResponse, error) {
+	options := &password.Options{16, 100, 32, sha256.New}
+	pwdInfo := strings.Split(request.EncryptedPassword, "$")
+	check := password.Verify("generic password", pwdInfo[2], pwdInfo[3], options)
+	return &proto.CheckResponse{Success: check}, nil
 }
