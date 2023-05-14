@@ -5,12 +5,14 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"github.com/anaskhan96/go-password-encoder"
+	"github.com/golang/protobuf/ptypes/empty"
 	"go_srvs/user_srv/global"
 	"go_srvs/user_srv/model"
 	"go_srvs/user_srv/proto"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
+	"time"
 )
 
 type UserServer struct{}
@@ -114,4 +116,21 @@ func (s *UserServer) CreateUser(ctx context.Context, request *proto.CreateUserIn
 
 	userInfoRsp := Model2Response(user)
 	return &userInfoRsp, nil
+}
+
+func (s UserServer) UpdateUser(ctx context.Context, request *proto.UpdateUserInfo) (*empty.Empty, error) {
+	var user model.User
+	result := global.DB.First(&user, request.Id)
+	if result.RowsAffected == 0 {
+		return nil, status.Errorf(codes.NotFound, "用户不存在")
+	}
+	birthDay := time.Unix(int64(request.BirthDay), 0)
+	user.NickName = request.NickName
+	user.Birthday = &birthDay
+	user.Gender = request.Gender
+	result = global.DB.Save(&user)
+	if result.Error != nil {
+		return nil, status.Errorf(codes.Internal, result.Error.Error())
+	}
+	return &empty.Empty{}, nil
 }
