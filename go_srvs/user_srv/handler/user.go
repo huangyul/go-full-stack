@@ -5,6 +5,8 @@ import (
 	"go_srvs/user_srv/global"
 	"go_srvs/user_srv/model"
 	"go_srvs/user_srv/proto"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 )
 
@@ -59,4 +61,32 @@ func (s *UserServer) GetUserList(ctx context.Context, request *proto.PageInfo) (
 		rsp.Data = append(rsp.Data, &userInfoRsp)
 	}
 	return rsp, nil
+}
+
+func (s *UserServer) GetUserByMobile(ctx context.Context, request *proto.MobileRequest) (*proto.UserInfoResponse, error) {
+	var user model.User
+	result := global.DB.Where(&model.User{Mobile: request.Mobile}).First(&user)
+
+	if result.RowsAffected == 0 {
+		return nil, status.Error(codes.NotFound, "用户不存在")
+	}
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	userInfoRsp := Model2Response(user)
+	return &userInfoRsp, nil
+
+}
+
+func (s *UserServer) GetUserById(ctx context.Context, request *proto.IdRequest) (*proto.UserInfoResponse, error) {
+	var user model.User
+	result := global.DB.First(&user, request.Id)
+	if result.RowsAffected == 0 {
+		return nil, status.Errorf(codes.NotFound, "用户找不到")
+	}
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	userInfoRes := Model2Response(user)
+	return &userInfoRes, nil
 }
