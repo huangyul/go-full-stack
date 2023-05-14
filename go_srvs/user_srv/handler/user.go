@@ -2,6 +2,9 @@ package handler
 
 import (
 	"context"
+	"crypto/sha256"
+	"fmt"
+	"github.com/anaskhan96/go-password-encoder"
 	"go_srvs/user_srv/global"
 	"go_srvs/user_srv/model"
 	"go_srvs/user_srv/proto"
@@ -89,4 +92,26 @@ func (s *UserServer) GetUserById(ctx context.Context, request *proto.IdRequest) 
 	}
 	userInfoRes := Model2Response(user)
 	return &userInfoRes, nil
+}
+
+func (s *UserServer) CreateUser(ctx context.Context, request *proto.CreateUserInfo) (*proto.UserInfoResponse, error) {
+	var user model.User
+	result := global.DB.Where(&model.User{Mobile: request.Mobile}).First(&user)
+	if result.RowsAffected == 1 {
+		return nil, status.Errorf(codes.AlreadyExists, "用户已经存在")
+	}
+	user.Mobile = request.Mobile
+	user.NickName = request.NickName
+	// 密码加密
+	options := &password.Options{16, 100, 32, sha256.New}
+	salt, encodedPwd := password.Encode("generic password", options)
+	user.PassWord = fmt.Sprintf("$pbkdf2-sha512$%s$%s", salt, encodedPwd)
+
+	result = global.DB.Create(&user)
+	if result.Error != nil {
+		return nil, status.Errorf(codes.Internal, result.Error.Error())
+	}
+
+	userInfoRsp := Model2Response(user)
+	return &userInfoRsp, nil
 }
