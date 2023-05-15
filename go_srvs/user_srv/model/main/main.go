@@ -6,6 +6,8 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/anaskhan96/go-password-encoder"
+	"go_srvs/user_srv/global"
+	"go_srvs/user_srv/model"
 	"io"
 	"strings"
 )
@@ -22,7 +24,7 @@ func genMd5(code string) string {
 func main() {
 
 	// 迁移表
-	//_ = db.AutoMigrate(&model.User{})
+	//_ = global.DB.AutoMigrate(&model.User{})
 	// Using the default options
 	//salt, encodedPwd := password.Encode("generic password", nil)
 	//check := password.Verify("generic password", salt, encodedPwd, nil)
@@ -36,4 +38,12 @@ func main() {
 	pwdInfo := strings.Split(pwd, "$")
 	check := password.Verify("generic password", pwdInfo[2], pwdInfo[3], options)
 	fmt.Println(check) // true
+	for i := 0; i < 10; i++ {
+		user := model.User{
+			NickName: fmt.Sprintf("user%d", i),
+			Mobile:   fmt.Sprintf("1311222222%d", i),
+			PassWord: pwd,
+		}
+		global.DB.Save(&user)
+	}
 }
