@@ -21,11 +21,13 @@ type UserServer struct{}
 func Model2Response(user model.User) proto.UserInfoResponse {
 	userInfoRsp := proto.UserInfoResponse{
 		Id:       user.ID,
+		Mobile:   user.Mobile,
 		PassWord: user.PassWord,
 		NickName: user.NickName,
 		Gender:   user.Gender,
 		Role:     int32(user.Role),
 	}
+	fmt.Printf("%v", userInfoRsp)
 	if user.Birthday != nil {
 		userInfoRsp.BirthDay = uint64(user.Birthday.Unix())
 	}
