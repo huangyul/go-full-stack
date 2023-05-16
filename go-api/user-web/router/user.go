@@ -6,8 +6,8 @@ import (
 )
 
 func InitUserRouter(Router *gin.RouterGroup) {
-	Router.Group("user")
+	router := Router.Group("user")
 	{
-		Router.GET("list", api.GetUserList)
+		router.GET("list", api.GetUserList)
 	}
 }
