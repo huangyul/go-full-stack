@@ -17,6 +17,11 @@ func main() {
 	// 初始化router
 	router := initialize.Routers()
 
+	// 初始化翻译
+	if err := initialize.InitTrans("zh"); err != nil {
+		panic(err)
+	}
+
 	zap.S().Infof("启动服务器，端口：%d", global.ServerConfig.Port)
 
 	err := router.Run(fmt.Sprintf(":%d", global.ServerConfig.Port))

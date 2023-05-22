@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
+	"go-api/user-web/forms"
 	"go-api/user-web/global"
 	"go-api/user-web/global/response"
 	"go-api/user-web/proto"
@@ -13,6 +15,7 @@ import (
 	"google.golang.org/grpc/status"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -86,4 +89,34 @@ func GetUserList(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, result)
+}
+
+func removeTopStruct(fileds map[string]string) map[string]string {
+	rsp := map[string]string{}
+	for filed, err := range fileds {
+		rsp[filed[strings.Index(filed, ".")+1:]] = err
+	}
+	return rsp
+}
+
+func HandleValidator(c *gin.Context, err error) {
+	errs, ok := err.(validator.ValidationErrors)
+	if !ok {
+		c.JSON(http.StatusOK, gin.H{
+			"msg": err.Error(),
+		})
+	}
+	c.JSON(http.StatusBadRequest, gin.H{
+		"error": removeTopStruct(errs.Translate(global.Trans)),
+	})
+}
+
+func PasswordLogin(c *gin.Context) {
+	// 表单验证
+	passwordLoginForm := forms.PasswordLoginForm{}
+
+	if err := c.ShouldBind(&passwordLoginForm); err != nil {
+		HandleValidator(c, err)
+		return
+	}
 }
