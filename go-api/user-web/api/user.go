@@ -3,11 +3,14 @@ package api
 import (
 	"context"
 	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"go-api/user-web/forms"
 	"go-api/user-web/global"
 	"go-api/user-web/global/response"
+	"go-api/user-web/middlewares"
+	"go-api/user-web/models"
 	"go-api/user-web/proto"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -154,9 +157,32 @@ func PasswordLogin(c *gin.Context) {
 			})
 		} else {
 			if passRes.Success {
-				c.JSON(http.StatusOK, map[string]string{
-					"msg": "登录成功",
+				// 生成token
+				j := middlewares.NewJWT()
+				claims := models.CustomClaims{
+					ID:          uint(res.Id),
+					NickName:    res.NickName,
+					AuthorityId: uint(res.Role),
+					StandardClaims: jwt.StandardClaims{
+						NotBefore: time.Now().Unix(),
+						Issuer:    "yul",
+						ExpiresAt: time.Now().Unix() + 60*60*24*30,
+					},
+				}
+				token, err := j.CreateToken(claims)
+				if err != nil {
+					c.JSON(http.StatusInternalServerError, gin.H{
+						"msg": "生成token失败",
+					})
+					return
+				}
+				c.JSON(http.StatusOK, gin.H{
+					"id":         res.Id,
+					"nick_name":  res.NickName,
+					"token":      token,
+					"expired_at": time.Now().Unix() + 60*60*24*30,
 				})
+				return
 			} else {
 				c.JSON(http.StatusBadRequest, map[string]string{
 					"msg": "登录失败",
