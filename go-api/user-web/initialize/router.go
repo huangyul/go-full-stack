@@ -15,6 +15,7 @@ func Routers() *gin.Engine {
 	// 路由初始化
 	ApiGroup := router.Group("/v1")
 	router2.InitUserRouter(ApiGroup)
+	router2.InitBaseRouter(ApiGroup)
 
 	return router
 }

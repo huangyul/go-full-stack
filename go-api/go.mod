@@ -3,9 +3,14 @@ module go-api
 go 1.19
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/gin-gonic/gin v1.9.0
+	github.com/go-playground/locales v0.14.1
+	github.com/go-playground/universal-translator v0.18.1
+	github.com/go-playground/validator/v10 v10.11.2
 	github.com/golang/protobuf v1.5.3
+	github.com/mojocn/base64Captcha v1.3.5
 	github.com/spf13/viper v1.15.0
 	go.uber.org/zap v1.24.0
 	google.golang.org/grpc v1.55.0
@@ -15,12 +20,9 @@ require (
 require (
 	github.com/bytedance/sonic v1.8.0 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/go-playground/locales v0.14.1 // indirect
-	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.11.2 // indirect
 	github.com/goccy/go-json v0.10.0 // indirect
+	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
@@ -42,6 +44,7 @@ require (
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
 	golang.org/x/crypto v0.5.0 // indirect
+	golang.org/x/image v0.0.0-20190802002840-cff245a6509b // indirect
 	golang.org/x/net v0.8.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect
 	golang.org/x/text v0.8.0 // indirect

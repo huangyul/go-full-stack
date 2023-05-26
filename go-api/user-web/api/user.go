@@ -126,6 +126,14 @@ func PasswordLogin(c *gin.Context) {
 		return
 	}
 
+	// 验证码验证
+	if !store.Verify(passwordLoginForm.CaptchaId, passwordLoginForm.Captcha, true) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"msg": "验证码错误",
+		})
+		return
+	}
+
 	userConn, err := grpc.Dial(fmt.Sprintf("%s:%d", global.ServerConfig.UserSrvInfo.Host, global.ServerConfig.UserSrvInfo.Port), grpc.WithInsecure())
 	if err != nil {
 		zap.S().Errorw("[PasswordLogin] 连接 [用户服务失败]", "msg", err.Error())
