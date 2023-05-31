@@ -6,3 +6,11 @@ user_srv:
 
 jwt:
   key: '123456'
+
+redis:
+  host: '47.106.214.127'
+  port: 6379
+
+sms:
+  key: ''
+  secret: ''

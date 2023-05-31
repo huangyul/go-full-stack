@@ -10,8 +10,19 @@ type ServerConfig struct {
 	Port        int           `mapstructure:"port"`
 	UserSrvInfo UserSrvConfig `mapstructure:"user_srv"`
 	JWTInfo     JWTConfig     `mapstructure:"jwts"`
+	RedisInfo   RedisConfig   `mapstructure:"redies"`
 }
 
 type JWTConfig struct {
 	SigningKey string `mapstructure:"key"`
+}
+
+type AliSmsConfig struct {
+	ApiKey     string `mapstructrue:"key"`
+	ApiSecrect string `mapstructure:"secret"`
+}
+
+type RedisConfig struct {
+	Host string `mapstructure:"host"`
+	Port int    `mapstructure:"port"`
 }
