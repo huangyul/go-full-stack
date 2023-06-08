@@ -141,6 +141,6 @@ func (s UserServer) UpdateUser(ctx context.Context, request *proto.UpdateUserInf
 func (s *UserServer) CheckPassword(ctx context.Context, request *proto.CheckPasswordInfo) (*proto.CheckResponse, error) {
 	options := &password.Options{16, 100, 32, sha256.New}
 	pwdInfo := strings.Split(request.EncryptedPassword, "$")
-	check := password.Verify("generic password", pwdInfo[2], pwdInfo[3], options)
+	check := password.Verify(request.PassWord, pwdInfo[2], pwdInfo[3], options)
 	return &proto.CheckResponse{Success: check}, nil
 }
