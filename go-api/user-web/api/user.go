@@ -6,6 +6,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/hashicorp/consul/api"
 	"go-api/user-web/forms"
 	"go-api/user-web/global"
 	"go-api/user-web/global/response"
@@ -56,8 +57,36 @@ func HandleGrpcErrorToHttp(err error, c *gin.Context) {
 }
 
 func GetUserList(ctx *gin.Context) {
+	// 从注册中心获取用户信息
+	consulConfig := api.DefaultConfig()
+	consulConfig.Address = fmt.Sprintf("%s:%d", global.ServerConfig.ConsulInfo.Host, global.ServerConfig.ConsulInfo.Port)
 
-	userConn, err := grpc.Dial(fmt.Sprintf("%s:%d", global.ServerConfig.UserSrvInfo.Host, global.ServerConfig.UserSrvInfo.Port), grpc.WithInsecure())
+	userSrvHost := ""
+	userSrvPort := 0
+	consulClient, err := api.NewClient(consulConfig)
+	if err != nil {
+		panic(err)
+	}
+
+	consulData, err := consulClient.Agent().ServicesWithFilter(fmt.Sprintf(`Service == "%s"`, global.ServerConfig.UserSrvInfo.Name))
+	if err != nil {
+		panic(err)
+	}
+
+	for _, v := range consulData {
+		userSrvHost = v.Address
+		userSrvPort = v.Port
+		break
+	}
+
+	if userSrvHost == "" {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": "用户服务不可达",
+		})
+		return
+	}
+
+	userConn, err := grpc.Dial(fmt.Sprintf("%s:%d", userSrvHost, userSrvPort), grpc.WithInsecure())
 	if err != nil {
 		zap.S().Errorw("[GetUserList]连接失败", "msg", err.Error())
 	}
