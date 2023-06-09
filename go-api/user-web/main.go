@@ -5,8 +5,10 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
+	"github.com/spf13/viper"
 	"go-api/user-web/global"
 	"go-api/user-web/initialize"
+	"go-api/user-web/utils"
 	myValidator "go-api/user-web/validator"
 	"go.uber.org/zap"
 )
@@ -28,6 +30,15 @@ func main() {
 
 	// 初始化srv连接
 	initialize.InitSrvConn()
+
+	viper.AutomaticEnv()
+	debug := viper.GetBool("GO_DEBUG")
+	if !debug {
+		port, err := utils.GetFreePort()
+		if err != nil {
+			global.ServerConfig.Port = port
+		}
+	}
 
 	// 注册验证器
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
