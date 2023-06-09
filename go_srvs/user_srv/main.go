@@ -9,6 +9,7 @@ import (
 	"go_srvs/user_srv/handler"
 	"go_srvs/user_srv/initialize"
 	"go_srvs/user_srv/proto"
+	"go_srvs/user_srv/utils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
@@ -25,6 +26,10 @@ func main() {
 
 	flag.Parse()
 	zap.S().Info("ip: ", *IP)
+	if *Port == 0 {
+		*Port, _ = utils.GetFreePort()
+	}
+
 	zap.S().Info("port:", *Port)
 
 	server := grpc.NewServer()
@@ -47,7 +52,7 @@ func main() {
 	}
 
 	check := &api.AgentServiceCheck{
-		GRPC:                           "192.168.0.112:50051",
+		GRPC:                           fmt.Sprintf("192.168.0.112:%d", *Port),
 		Timeout:                        "5s",
 		Interval:                       "5s",
 		DeregisterCriticalServiceAfter: "15s",
@@ -55,7 +60,7 @@ func main() {
 	registration := new(api.AgentServiceRegistration)
 	registration.Name = global.ServerConfig.Name
 	registration.Address = "192.168.0.112"
-	registration.Port = 50051
+	registration.Port = *Port
 	registration.ID = global.ServerConfig.Name
 	registration.Tags = []string{"srv", "user-srv"}
 	registration.Check = check
